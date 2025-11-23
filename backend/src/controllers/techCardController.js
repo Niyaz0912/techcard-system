@@ -50,7 +50,13 @@ export const getTechCardById = async (req, res) => {
 // POST создать техкарту
 export const createTechCard = async (req, res) => {
   try {
-    const techCard = await TechCard.create(req.body);
+    const techCardData = {
+      ...req.body,
+      createdBy: req.user.id, // Берем ID из middleware аутентификации
+      currentQuantity: req.body.totalQuantity // Автоматически выставляем остаток
+    };
+
+    const techCard = await TechCard.create(techCardData);
     
     res.json({ 
       status: "OK", 
