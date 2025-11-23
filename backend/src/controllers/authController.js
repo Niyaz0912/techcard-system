@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
@@ -42,19 +43,25 @@ export const login = async (req, res) => {
       });
     }
 
-    // 3. Генерируем токены
-    const tokens = generateTokens(user.id);
+    // 3. Создаем JWT токен
+    const token = jwt.sign(
+      { userId: user.id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
 
-    // 4. Возвращаем ответ
     res.json({
       success: true,
-      data: {
-        user: user.toSafeObject(),
-        tokens
+      message: 'Вход выполнен успешно',
+      token,
+      user: {
+        id: user.id,
+        username: user.username
       }
     });
 
   } catch (error) {
+    console.error('Login error:', error);
     res.status(500).json({
       success: false,
       message: 'Ошибка при входе в систему',
