@@ -8,156 +8,72 @@ const TechCard = sequelize.define('TechCard', {
     autoIncrement: true
   },
   
-  // === ОСНОВНАЯ ИНФОРМАЦИЯ О ЗАКАЗЕ ===
-  customer: {                    // Заказчик (организация/завод)
+  // === ОСНОВНАЯ ИНФОРМАЦИЯ ===
+  customer: {                    // Заказчик
     type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      len: [2, 200]
-    }
+    allowNull: false
   },
-  orderName: {                  // Наименование заказа (конвейерная линия)
+  orderName: {                  // Наименование заказа
     type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      len: [2, 200]
-    }
+    allowNull: false
   },
-  productName: {                // Наименование изделия (ролики, оси, втулки)
+  productName: {                // Наименование изделия
     type: DataTypes.STRING,
-    allowNull: false,
-    validate: {
-      len: [2, 200]
-    }
+    allowNull: false
   },
-  productCode: {                // Код изделия (уникальный)
+  productCode: {                // Код изделия
     type: DataTypes.STRING,
     unique: true,
-    allowNull: false,
-    validate: {
-      len: [2, 50]
-    }
+    allowNull: false
   },
   
-  // === ТИП ОБРАБОТКИ - ЗАЩИТА ОТ ДУРАКА ===
-  processingType: {            
-    type: DataTypes.ENUM(
-      'rough',                 // Черновая (до термообработки)
-      'finish',                // Чистовая (после термообработки)  
-      'assembly',              // Сборка
-      'setup1',                // Установка 1
-      'setup2',                // Установка 2
-      'other'                  // Другое
-    ),
-    allowNull: false,
-    defaultValue: 'rough'
-  },
-  
-  // === СООБЩЕНИЕ ДЛЯ ОПЕРАТОРА ===
-  instructions: {              
-    type: DataTypes.TEXT,
-    allowNull: true,
-    validate: {
-      len: [0, 1000]  // "ВНИМАНИЕ: Размеры до термообработки!"
-    }
-  },
-  
-  // === КОНТРОЛЬ ПОСЛЕДОВАТЕЛЬНОСТИ ===
-  requiresPrevious: {          // Требует завершения предыдущей техкарты
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  },
-  previousTechCardId: {        // Ссылка на предыдущую техкарту
-    type: DataTypes.INTEGER,
-    allowNull: true
-  },
-  
-  // === ПРОИЗВОДСТВЕННЫЕ ПАРАМЕТРЫ ===
+  // === ПРОИЗВОДСТВО ===
   totalQuantity: {              // Общее количество
     type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      min: 1
-    }
+    validate: { min: 1 }
   },
-  currentQuantity: {            // Текущее количество (уменьшается при браке)
+  currentQuantity: {            // Текущий остаток
     type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      min: 0
-    }
+    validate: { min: 0 }
   },
   
-  // === ДОКУМЕНТООБОРОТ ===
-  documentNumber: {             // Номер документа техкарты
+  // === ДОКУМЕНТАЦИЯ ===
+  documentNumber: {             // Номер техкарты
     type: DataTypes.STRING,
     unique: true,
-    allowNull: false,
-    validate: {
-      len: [2, 50]
-    }
+    allowNull: false
   },
-  pdfPath: {                    // Путь к PDF файлу (если загружен)
+  pdfPath: {                    // Путь к PDF файлу
     type: DataTypes.STRING,
     allowNull: true
   },
   
-  // === ЭТАПЫ ПРОИЗВОДСТВА (простая структура) ===
-  stages: {                     // JSON с этапами производства
-    type: DataTypes.JSONB,      // [{name: "Отрезная", planned: 150, completed: 0}]
-    allowNull: false,
-    defaultValue: []
-  },
-  
-  // === СТАТУСЫ ===
-  status: {                     // Статус техкарты
-    type: DataTypes.ENUM(
-      'draft',                  // Черновик
-      'in_progress',            // В работе
-      'on_hold',                // Приостановлено
-      'completed',              // Завершено
-      'cancelled'               // Отменено
-    ),
+  // === СТАТУС ===
+  status: {                     // Статус выполнения
+    type: DataTypes.ENUM('draft', 'in_progress', 'completed', 'cancelled'),
     defaultValue: 'draft'
-  },
-  priority: {                   // Приоритет
-    type: DataTypes.ENUM('low', 'normal', 'high', 'urgent'),
-    defaultValue: 'normal'
   },
   
   // === ДАТЫ ===
-  deadline: {                   // Крайний срок выполнения
+  deadline: {                   // Крайний срок
     type: DataTypes.DATE,
     allowNull: true
   },
   
-  // === СИСТЕМНЫЕ ПОЛЯ ===
-  createdBy: {                  // Кто создал техкарту (связь с User)
+  // === СИСТЕМНЫЕ ===
+  createdBy: {                  // Кто создал
     type: DataTypes.INTEGER,
-    allowNull: false,
-    references: {
-      model: 'users',
-      key: 'id'
-    }
+    allowNull: false
   },
-  isActive: {                   // Активна ли техкарта
+  isActive: {                   // Активна
     type: DataTypes.BOOLEAN,
     defaultValue: true
   }
 }, {
   tableName: 'tech_cards',
-  timestamps: true,  // createdAt, updatedAt автоматически
-  indexes: [
-    {
-      fields: ['productCode']  // Быстрый поиск по коду изделия
-    },
-    {
-      fields: ['customer']     // Быстрый поиск по заказчику
-    },
-    {
-      fields: ['status']       // Быстрый поиск по статусу
-    }
-  ]
+  timestamps: true
 });
 
 export default TechCard;
