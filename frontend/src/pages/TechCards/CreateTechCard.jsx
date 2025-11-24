@@ -4,7 +4,7 @@ import api from '../../services/api';
 
 export default function CreateTechCard({ onSuccess, onCancel }) {
   const [formData, setFormData] = useState({
-    customer: '', orderName: '', productName: '', 
+    customer: '', orderName: '', productName: '',
     productCode: '', totalQuantity: 0, documentNumber: '',
     pdfFile: null // Добавляем поле для файла
   });
@@ -15,7 +15,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file && file.type === 'application/pdf') {
-      setFormData({...formData, pdfFile: file});
+      setFormData({ ...formData, pdfFile: file });
     } else if (file) {
       alert('Пожалуйста, выберите PDF файл');
     }
@@ -24,37 +24,31 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setUploading(true);
-    
-    try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('customer', formData.customer);
-      formDataToSend.append('orderName', formData.orderName);
-      formDataToSend.append('productName', formData.productName);
-      formDataToSend.append('productCode', formData.productCode);
-      formDataToSend.append('totalQuantity', formData.totalQuantity);
-      formDataToSend.append('documentNumber', formData.documentNumber);
-      formDataToSend.append('createdBy', user.id);
-      formDataToSend.append('currentQuantity', formData.totalQuantity);
-      
-      // Добавляем PDF файл если он выбран
-      if (formData.pdfFile) {
-        formDataToSend.append('pdf', formData.pdfFile);
-      }
 
-      await api.post('/tech-cards', formDataToSend, {
+    try {
+      // ВРЕМЕННО убираем PDF загрузку
+      const dataToSend = {
+        customer: formData.customer,
+        orderName: formData.orderName,
+        productName: formData.productName,
+        productCode: formData.productCode,
+        totalQuantity: formData.totalQuantity,
+        documentNumber: formData.documentNumber,
+        createdBy: user?.id || 2 // временно хардкод если user null
+      };
+
+      console.log('📤 Отправляемые данные:', dataToSend);
+
+      await api.post('/tech-cards', dataToSend, {
         headers: {
-          'Content-Type': 'multipart/form-data'
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
-      
+
       onSuccess();
-      setFormData({
-        customer: '', orderName: '', productName: '', 
-        productCode: '', totalQuantity: 0, documentNumber: '', pdfFile: null
-      });
-      
     } catch (error) {
-      alert('Ошибка создания техкарты: ' + (error.response?.data?.message || error.message));
+      console.error('Create error:', error);
+      alert('Ошибка при создании техкарты: ' + (error.response?.data?.message || error.message));
     } finally {
       setUploading(false);
     }
@@ -75,7 +69,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="Название заказчика"
                 value={formData.customer}
-                onChange={(e) => setFormData({...formData, customer: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, customer: e.target.value })}
                 required
               />
             </div>
@@ -86,7 +80,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="Название заказа"
                 value={formData.orderName}
-                onChange={(e) => setFormData({...formData, orderName: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, orderName: e.target.value })}
                 required
               />
             </div>
@@ -97,7 +91,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="Наименование изделия"
                 value={formData.productName}
-                onChange={(e) => setFormData({...formData, productName: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, productName: e.target.value })}
                 required
               />
             </div>
@@ -108,7 +102,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="Артикул или код"
                 value={formData.productCode}
-                onChange={(e) => setFormData({...formData, productCode: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, productCode: e.target.value })}
                 required
               />
             </div>
@@ -119,7 +113,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="0"
                 value={formData.totalQuantity}
-                onChange={(e) => setFormData({...formData, totalQuantity: parseInt(e.target.value) || 0})}
+                onChange={(e) => setFormData({ ...formData, totalQuantity: parseInt(e.target.value) || 0 })}
                 min="0"
                 required
               />
@@ -131,7 +125,7 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 className="form-control"
                 placeholder="Номер техкарты"
                 value={formData.documentNumber}
-                onChange={(e) => setFormData({...formData, documentNumber: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, documentNumber: e.target.value })}
                 required
               />
             </div>
@@ -159,8 +153,8 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
           </div>
 
           <div className="mt-4">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="btn btn-success me-2"
               disabled={uploading}
             >
@@ -173,9 +167,9 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
                 'Создать техкарту'
               )}
             </button>
-            <button 
-              type="button" 
-              className="btn btn-secondary" 
+            <button
+              type="button"
+              className="btn btn-secondary"
               onClick={onCancel}
               disabled={uploading}
             >
