@@ -56,9 +56,15 @@ export const createTechCard = async (req, res) => {
   
   try {
     const techCardData = {
-      ...req.body,
-      createdBy: req.user.id, // Берем ID из middleware аутентификации
-      currentQuantity: req.body.totalQuantity // Автоматически выставляем остаток
+      customer: req.body.customer,
+      orderName: req.body.orderName,
+      productName: req.body.productName,
+      productCode: req.body.productCode,
+      totalQuantity: parseInt(req.body.totalQuantity),
+      documentNumber: req.body.documentNumber,
+      createdBy: req.user.id,
+      currentQuantity: parseInt(req.body.totalQuantity),
+      pdfPath: req.file ? req.file.filename : null // Сохраняем имя файла
     };
 
     console.log('🛠️ [CREATE_TECHCARD] Данные для создания:', techCardData);
@@ -72,10 +78,7 @@ export const createTechCard = async (req, res) => {
       data: techCard 
     });
   } catch (error) {
-    console.error('❌ [CREATE_TECHCARD] Ошибка создания техкарты:');
-    console.error('📝 [CREATE_TECHCARD] Сообщение ошибки:', error.message);
-    console.error('🔍 [CREATE_TECHCARD] Stack trace:', error.stack);
-    
+        
     // Обработка ошибок уникальности
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({

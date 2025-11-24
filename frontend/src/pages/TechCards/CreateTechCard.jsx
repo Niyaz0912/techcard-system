@@ -26,21 +26,30 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
     setUploading(true);
 
     try {
-      // ВРЕМЕННО убираем PDF загрузку
-      const dataToSend = {
-        customer: formData.customer,
-        orderName: formData.orderName,
-        productName: formData.productName,
-        productCode: formData.productCode,
-        totalQuantity: formData.totalQuantity,
-        documentNumber: formData.documentNumber,
-        createdBy: user?.id || 2 // временно хардкод если user null
-      };
+      const formDataToSend = new FormData();
 
-      console.log('📤 Отправляемые данные:', dataToSend);
+      // Добавляем текстовые поля
+      formDataToSend.append('customer', formData.customer);
+      formDataToSend.append('orderName', formData.orderName);
+      formDataToSend.append('productName', formData.productName);
+      formDataToSend.append('productCode', formData.productCode);
+      formDataToSend.append('totalQuantity', formData.totalQuantity.toString());
+      formDataToSend.append('documentNumber', formData.documentNumber);
+      formDataToSend.append('createdBy', user?.id?.toString() || '2');
 
-      await api.post('/tech-cards', dataToSend, {
+      // Добавляем PDF файл если есть
+      if (formData.pdfFile) {
+        formDataToSend.append('pdf', formData.pdfFile);
+      }
+
+      console.log('📤 Отправляемые данные:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      await api.post('/tech-cards', formDataToSend, {
         headers: {
+          'Content-Type': 'multipart/form-data',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
       });
@@ -53,7 +62,6 @@ export default function CreateTechCard({ onSuccess, onCancel }) {
       setUploading(false);
     }
   };
-
   return (
     <div className="card mb-4">
       <div className="card-header">

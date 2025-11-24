@@ -37,7 +37,7 @@ export default function TechCardDetail({ cardId, onEdit }) {
             <p><strong>Код изделия:</strong> {card.productCode}</p>
           </div>
           <div className="col-md-6">
-            <p><strong>Статус:</strong> 
+            <p><strong>Статус:</strong>
               <span className={`badge ms-2 ${card.status === 'completed' ? 'bg-success' : 'bg-warning'}`}>
                 {card.status === 'completed' ? 'Завершено' : 'В работе'}
               </span>
@@ -46,11 +46,16 @@ export default function TechCardDetail({ cardId, onEdit }) {
             <p><strong>Создано:</strong> {new Date(card.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
-        
-        {card.pdfUrl && (
+
+        {card.pdfPath && (
           <div className="mt-3">
             <strong>PDF документ: </strong>
-            <a href={card.pdfUrl} target="_blank" rel="noopener noreferrer" className="btn btn-sm btn-outline-primary ms-2">
+            <a
+              href={`http://localhost:3001/uploads/${card.pdfPath}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="ms-2"
+            >
               📄 Открыть PDF
             </a>
           </div>

@@ -1,8 +1,13 @@
 ﻿import express from "express";
+import path from 'path';
+import { fileURLToPath } from 'url';
 import cors from "cors";
 import dotenv from 'dotenv';
 import connectDB, { sequelize } from './config/database.js';
 
+// Получаем __dirname для ES модулей
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 // Импорты роутов
 import authRoutes from './routes/auth.js';
 import usersRoutes from './routes/users.js';
@@ -24,6 +29,7 @@ const PORT = process.env.PORT || 3001;
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 app.use(cors());
 
 // Инициализация базы данных
