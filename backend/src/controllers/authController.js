@@ -2,6 +2,13 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
+// Убедись что JWT_SECRET загружен
+if (!process.env.JWT_SECRET) {
+  console.error('❌ JWT_SECRET is not defined!');
+  // Установи значение по умолчанию для тестирования
+  process.env.JWT_SECRET = 'fallback_secret_key_for_development';
+}
+
 // Генерация токенов
 const generateTokens = (userId) => {
   const accessToken = jwt.sign(
